@@ -56,16 +56,20 @@ class _listMainState extends State<listMain> {
                               mainAxisAlignment: MainAxisAlignment.start,
                               children: [
                                 IconButton(
-                                  icon: Icon(Icons.play_arrow),
-                                  iconSize: 15,
-                                  onPressed: (){
-
+                                  icon: snapshot.data.iconUsed,
+                                  iconSize: 25,
+                                  onPressed: ()async{
+                                  await listing.setdifference(index, snapshot.data.time);
+                                  _refresh();
                                   },
                                 ),
                                 SizedBox(height: 5,),
                                 //Task
                                 Text(
                                   snapshot.data.task,
+                                  style: TextStyle(
+                                    fontSize: 20,
+                                  ),
                                 )
                               ],
                             ),
@@ -85,8 +89,6 @@ class _listMainState extends State<listMain> {
         ;
       }
       )
-
-
 
      ,
                 floatingActionButton: FloatingActionButton(
@@ -129,8 +131,9 @@ class _listMainState extends State<listMain> {
 class CardItem  {
   String task,time;
    int count;
-  Icon iconUsed=new Icon(Icons.play_arrow);
-  CardItem(this.task,this.time,this.count);
+   int index;
+  Icon iconUsed;
+  CardItem(this.task,this.time,this.count,this.iconUsed,this.index);
 }
 class Listing {
   Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
@@ -138,7 +141,6 @@ class Listing {
   {
     final SharedPreferences prefs = await _prefs;
    int count=await prefs.get("counter");
-   print(index.toString()+"  ****   "+ count.toString());
    if(count!=null){
    if(index<=count){
       var now =new DateTime.now();
@@ -150,18 +152,35 @@ class Listing {
           prefs.get(index.toString() + "hour"),
           prefs.get(index.toString() + "minute"),
           prefs.get(index.toString() + "second"));
-     String time = now.difference(then).toString().substring(0,7);
-     CardItem cardItem=new CardItem(task,time,count);
+     String time = prefs.get(index.toString() + "difference") ?? now.difference(then).toString().substring(0,7);
+      Icon iconUsed;
+      if(prefs.get(index.toString()+"difference")!=null){
+        iconUsed=new Icon(Icons.play_arrow);}
+      else{
+        iconUsed=new Icon(Icons.pause);
+        print("pause"+index.toString());
+      }
+     CardItem cardItem=new CardItem(task,time,count,iconUsed,index);
       return cardItem;}
    else {
-     CardItem cardItem=new CardItem(null,null,null);
+     CardItem cardItem=new CardItem(null,null,null,null,null);
      return cardItem;
    }
    }
    else {
-     CardItem cardItem=new CardItem(null,null,null);
+     CardItem cardItem=new CardItem(null,null,null,null,null);
      return cardItem;
    }
   }
-}
+  void setdifference(int index,String time) async{
 
+    final SharedPreferences prefs = await _prefs;
+    if(prefs.get(index.toString()+"difference")==null){print("Set difference"+ index.toString()+time);
+    await prefs.setString(index.toString()+"difference", time);
+    print("get diff"+prefs.get(index.toString()+"difference"));
+    }
+    else{print("Set difference"+ "null");
+      prefs.setString(index.toString()+"difference", null);
+    }
+  }
+}

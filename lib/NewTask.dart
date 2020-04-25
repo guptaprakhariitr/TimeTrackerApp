@@ -16,11 +16,6 @@ class _NewTaskState extends State<NewTask> {
   Future<void> _SetCounter(String srt) async {
     final SharedPreferences prefs = await _prefs;
     //final int counter = (prefs.getInt(srt) ?? 0);
-    /*setState(() {
-      _counter = prefs.setInt(srt, counter).then((bool success) {
-        return counter;
-      });
-    });*/
     int counter=(prefs.getInt("counter") ?? -1)+1;
     prefs.setInt("counter", counter);
     var now = new DateTime.now();
@@ -91,10 +86,13 @@ class _NewTaskState extends State<NewTask> {
                     await _SetCounter(myController.text);
                     showDialog(context: context,builder: (context){
                       return AlertDialog(
-                        content: Text(prefs.get(prefs.get("counter").toString()) + "  +  Marked" ),
+                        content: Text(prefs.get(prefs.get("counter").toString()) + " Is Marked As New Task" ,
+
+                        ),
                       );
                     });
                     }
+                        myController.clear();
                           },
                           color: Colors.lightBlue,
                         ),
@@ -109,7 +107,7 @@ class _NewTaskState extends State<NewTask> {
             ),
           ), ],
       ),
-      backgroundColor: Colors.deepPurple,
+      backgroundColor: Colors.blueGrey,
     );
   }
 }
